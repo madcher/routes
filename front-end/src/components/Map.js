@@ -5,7 +5,7 @@ const MapComponent = () => {
         const L = window.L;
         const mymap = L.map('mapid').setView([55.755826, 37.6173], 13);
         // url of tiles z - zoom , x - latitude, y - longitude
-        const tileUrl = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+        const tileUrl = 'https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png';
         // tiles
         const tiles = L.tileLayer(tileUrl, {attribution: 'mymap'});
         tiles.addTo(mymap);

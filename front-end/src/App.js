@@ -1,13 +1,17 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Header from './components/Header';
 import Content from './components/Content';
-import './style.css';
+import Auth from './components/Auth';
 
 // компонент приложения
 const App = () => {
+    const [token, setToken] = useState(null);
+    if (!token) {
+        return (<Auth setToken={setToken} />)
+    }
     return(<div>
-            <Header/>
-            <Content/>
+            <Header setToken={setToken}/>
+            <Content token={token}/>
         </div>);
 }
 

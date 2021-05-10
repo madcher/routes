@@ -1,71 +1,63 @@
-/*
-const pool = new Pool({
-    user: 'postgres',
-    host: 'localhost',
-    databese: 'otus-courses',
-    password: 'root',
-    port: '5432'
-});
-*/
-
-import express from 'express';
-import * as http from 'http';
-import WebSocket from 'ws';
-import PG from 'pg';
-import { dirname } from 'path';
-import { fileURLToPath } from 'url';
 import { createHandler, updateHandler } from './src/utils.js';
+import { initWebSocketServer } from './src/websocket.js';
+import { initApiServer } from './src/apiServer.js';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+import dotenv from 'dotenv';
+import PG from 'pg';
+dotenv.config();
 
-// connect to database
-const Client = PG.Client;
-const connectionString = 'postgressql://postgres:root@localhost:5432/otus-courses';
-const client = new Client({
-    connectionString: connectionString
-});
-client.connect();
-
+// -----config-------------------------------------------------
+// секретный токен
+const pgPass = process.env.POSTGRES_PASSWORD;
+const pgUser = process.env.POSTGRES_USER;
+const pgHost = process.env.POSTGRES_HOST;
+const pgPort = process.env.POSTGRES_PORT;
+const pgDb = process.env.POSTGRES_DB;
+const token = process.env.TOKEN;
+// --------------------------------------------------------------
 // static content
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename)
-const app = express();
-app.use("/", express.static(__dirname + '/front-end/build'));
 
+// connect to database
+// 'postgressql://postgres:root@localhost:5432/otus-courses';
+const Client = PG.Client;
+const connectionString = `postgressql://${pgUser}:${pgPass}@${pgHost}:${pgPort}/${pgDb}`;
+const client = new Client({ connectionString: connectionString });
+client.connect();
 
-// rest api
-const server = http.createServer(app);
-app.listen(3000, () => console.log('Express server listening on 3000'));
-server.listen(8888);
+// rest api && websocket server
+const app = initApiServer(__dirname);
+const webSocketServer = initWebSocketServer(app);
 
-// websocket api
-const webSocketServer = new WebSocket.Server({ server });
-const sendMessages = async  (ws, count = 1) => {
-    let promise = new Promise((resolve, reject) => {
-        setTimeout(() => resolve("ready"), 3000)
-    });
-    
-    await promise;
-    ws.send(`hello from server ${count} time`);
-    sendMessages(ws, count + 1);
-};
-
-webSocketServer.on('connection', ws => {
-    console.log('ws connection ready');
-    sendMessages(ws);
-    ws.on('message', m => {
-        console.log(m);
-        webSocketServer.clients.forEach(client => client.send('we got it' + m));
-    });
-    ws.on("error", e => ws.send(e));
-    ws.send('Hi there, I am a WebSocket server');
+// авторизация
+app.post("/api/authorization", (req, res) => {
+    const {login, password} = req.body;
+    console.log(login, password);
+    if (login !== '1' && password !== '1') {
+        res.status(401);
+        res.send('Current password does not match');
+    } else {
+        res.send({token});
+    }
+});
+// проверка авторизации
+app.use(function (req, res, next) {
+    const reqToken = req.get('token');
+    if (!reqToken || reqToken !== token) {
+        res.status(401);
+        return res.send('Please log in');
+    }
+    next();
 });
 
-
-app.get("/update", function(req, res, next) {
+app.get("/update", function(req, res) {
     updateHandler(webSocketServer, client);
     res.send('done');
 });
 
-app.get("/create", function(req, res, next) {
+app.get("/create", function(req, res) {
     createHandler(webSocketServer, client);
     res.send('done');
 });

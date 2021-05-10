@@ -45,8 +45,18 @@ const Content = () => {
 
     return (
         <div className="content">
-            <div>Hello world !</div>
-            <button type="button" className="auth__input auth_button" onClick={() => {}}>Add course</button>
+            <div className="map-menu">
+                <div>New point</div>
+                <div>
+                    <button type="button" className="auth__input auth_button" onClick={() => {}}>Add point</button>
+                </div>
+            </div>
+            <div className="center-menu">
+                <div>Go to center</div>
+                <div>
+                    <button type="button" className="auth__input auth_button" onClick={() => {}}>go</button>
+                </div>
+            </div>
             <Map/>
         </div>
     );
