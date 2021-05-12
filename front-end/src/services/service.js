@@ -25,32 +25,22 @@ export const loginFunc = (e, setToken, setError) => {
     });
 };
 
-// получение курсов
-export const getCourse = (setCourses, token) => {
-    fetch('/api/get-courses', {
+// получение маршрутов
+export const getPoints = (setPoints, token) => {
+    fetch('/api/get-points', {
         method: 'GET',
         headers: {'token': token}
     }).then(response => response.json()).then(data => {
-        setCourses(data);
+        setPoints(data);
     }).catch(err => console.log(err));
 }
-// добавление курсов
-export const addCourse = (query, setCourses, token) => {
-    fetch('/api/add-course', {
+// добавление точки
+export const addPoint = (query, setPoints, token) => {
+    fetch('/api/addpoint', {
         method: 'POST',
         headers: {'token': token, 'Content-Type': 'application/json;charset=utf-8'},
         body: JSON.stringify(query)
     }).then(res => {
-        getCourse(setCourses, token);
-    }).catch(err => console.log(err));
-}
-// удаление курса
-export const deleteCourse = (courseName, setCourses, token) => {
-    fetch('/api/delete-course', {
-        method: 'DELETE',
-        headers: {'token': token, 'Content-Type': 'application/json;charset=utf-8'},
-        body: JSON.stringify({courseName})
-    }).then(res => {
-        getCourse(setCourses, token);
+        getPoints(setPoints, token);
     }).catch(err => console.log(err));
 }

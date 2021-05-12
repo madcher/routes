@@ -1,4 +1,4 @@
-import { createHandler, updateHandler } from './src/utils.js';
+import { getPointsHandler, addNewPointHandler } from './src/utils.js';
 import { initWebSocketServer } from './src/websocket.js';
 import { initApiServer } from './src/apiServer.js';
 import { fileURLToPath } from 'url';
@@ -52,13 +52,16 @@ app.use(function (req, res, next) {
     next();
 });
 
-app.get("/update", function(req, res) {
-    updateHandler(webSocketServer, client);
-    res.send('done');
+app.post("/api/addpoint", (req, res) => {
+    const {lat, lng, carId } = req.body;
+    const id = +new Date();
+
+    const newPoint = {id, lat, lng, carId, date: new Date()};
+    addNewPointHandler(webSocketServer, client, newPoint, res);
 });
 
-app.get("/create", function(req, res) {
-    createHandler(webSocketServer, client);
+app.get("/api/get", function(req, res) {
+    getPointsHandler(webSocketServer, client);
     res.send('done');
 });
 
