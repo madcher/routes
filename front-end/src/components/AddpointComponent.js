@@ -20,11 +20,11 @@ const AddPointComponent = ({callback}) => {
         <div className="map-menu">
             <form onSubmit={addPointHandler} className="addpoint-form">
                 <label className="auth__label">Uid</label>
-                <input className="auth__input" type="text" placeholder="" name="uid"/>
+                <input className="auth__input" type="text" placeholder="1" name="uid"/>
                 <label className="auth__label">Latitude</label>
-                <input className="auth__input" type="text" placeholder="" name="lat"/>
+                <input className="auth__input" type="text" placeholder="55.712868" name="lat"/>
                 <label className="auth__label">Longitude</label>
-                <input className="auth__input" type="text" placeholder="" name="lng"/>
+                <input className="auth__input" type="text" placeholder="37.540865" name="lng"/>
                 <button type="submit" className="auth__input auth_button">Add</button>
             </form>
         </div>
