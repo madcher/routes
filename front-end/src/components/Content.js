@@ -1,79 +1,59 @@
-import React, {useEffect} from 'react';
-import Map from './Map';
-import workerFunction from '../serviceWorker';
-import { addPoint } from '../services/service';
+import React, {useEffect, useState, useRef } from 'react';
+import MapComponent from './MapComponent';
+import Aim from '../icons/aim'
+import { addPoint, initWebSocket, getPoints } from '../services/service';
+import { initialMapState, CENTER, INITZOOM } from '../consts';
+import AddPointComponent from './AddpointComponent'
 
-var dataObj = '(' + workerFunction + ')();'; // here is the trick to convert the above fucntion to string
-var blob = new Blob([dataObj.replace('"use strict";', '')]); // firefox adds "use strict"; to any function which might block worker execution so knock it off
-
-var blobURL = (window.URL ? window.URL : window.webkitURL).createObjectURL(blob, {
-    type: 'application/javascript; charset=utf-8'
-});
 
 // содержания страницы
 const Content = ({token}) => {
+    const [state, setState] = useState(initialMapState);
+    const [ map, setMap ] = useState(null);
+    const [points, setPoints] = useState([]);
+    
     useEffect(() => {
-        const myWorker = new Worker(blobURL);
-        //const myWorker = new Worker('serviceWorker.js');
-        const message = { addThis: {num1: 1, num2: 10} };
-        myWorker.postMessage(message);
-        myWorker.onmessage = ({data}) => {
-            const {error, hint, message} = data;
-            if (error) {
-                alert(error);
-            }
-            if (hint) {
-                console.log(hint);
-            }
-            if (message) {
-                console.log(message);
-                // создаем уведомление
-                if (Notification.permission === "granted") {
-                    // Если разрешено, то создаем уведомление
-                    var notification = new Notification(message);
-                } else if (Notification.permission !== 'denied') {
-                    Notification.requestPermission(function (permission) {
-                        // Если пользователь разрешил, то создаем уведомление
-                        if (permission === "granted") {
-                            var notification = new Notification(message);
-                        }
-                    });
-                }
-            }
-        }
-        
+        getPoints(setPoints, token)
     }, []);
 
-    const setPoints = () => {
-        console.log('set points');
-    };
+    useEffect(() => {
+        if (!points.length) {
+            return;
+        }
+        const lastPoint = points[points.length-1];
+        const lastCoord = [lastPoint.lat, lastPoint.lng];
+        map.flyTo(lastCoord, INITZOOM);
+    }, [points]);
 
+    const socketMessageHandler = () => {
+        getPoints(setPoints, token);
+    }
+    
+    // worker
+    useEffect(() => {
+        initWebSocket(socketMessageHandler);
+    }, []);
 
-    const addPointHandler = () => {
-        const data = {
-            "lat": 56.855826, 
-            "lng": 38.8173,
-            "carId": 1
-        };
+    const goToCenter = () => {
+        map.flyTo(CENTER, INITZOOM);
+    }
 
+    const addPointHandler = (data) => {
         addPoint(data, setPoints, token);
     };
     
     return (
         <div className="content">
-            <div className="map-menu">
-                <div>New point</div>
-                <div>
-                    <button type="button" className="auth__input auth_button" onClick={addPointHandler}>Add point</button>
-                </div>
-            </div>
+            <AddPointComponent callback={addPointHandler} />
             <div className="center-menu">
-                <div>Go to center</div>
+                <div><Aim/></div>
                 <div>
-                    <button type="button" className="auth__input auth_button" onClick={() => {}}>go</button>
+                    <button type="button" className="auth__input auth_button" onClick={goToCenter}>go</button>
                 </div>
             </div>
-            <Map/>
+            <div id="mapid">
+                <MapComponent state={state} setMap={setMap} points={points}/>
+            </div>
         </div>
     );
 }

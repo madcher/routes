@@ -1,3 +1,5 @@
+import workerFunction from '../serviceWorker';
+
 // функция авторизации
 export const loginFunc = (e, setToken, setError) => {
     const data = new FormData(e.target);
@@ -27,7 +29,7 @@ export const loginFunc = (e, setToken, setError) => {
 
 // получение маршрутов
 export const getPoints = (setPoints, token) => {
-    fetch('/api/get-points', {
+    fetch('/api/get', {
         method: 'GET',
         headers: {'token': token}
     }).then(response => response.json()).then(data => {
@@ -44,3 +46,28 @@ export const addPoint = (query, setPoints, token) => {
         getPoints(setPoints, token);
     }).catch(err => console.log(err));
 }
+
+export const initWebSocket = (callback) => {
+    var dataObj = '(' + workerFunction + ')();'; // here is the trick to convert the above fucntion to string
+    var blob = new Blob([dataObj.replace('"use strict";', '')]); // firefox adds "use strict"; to any function which might block worker execution so knock it off
+
+    var blobURL = (window.URL ? window.URL : window.webkitURL).createObjectURL(blob, {
+        type: 'application/javascript; charset=utf-8'
+    });
+
+    const myWorker = new Worker(blobURL);
+    //const myWorker = new Worker('serviceWorker.js');
+    const message = { addThis: {num1: 1, num2: 10} };
+    myWorker.postMessage(message);
+    myWorker.onmessage = ({data}) => {
+        const {error, hint, message} = data;
+        if (error) {
+            alert(error);
+        }
+
+        if (message) {
+            console.log(message);
+            callback();
+        }
+    }
+};

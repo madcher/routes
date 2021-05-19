@@ -7,6 +7,10 @@
 .leaflet-routing-container, .leaflet-control-attribution, .leaflet-marker-icon, .leaflet-shadow-pane {
     display: none;
 }
+.addpoint-form {
+    display: flex;
+    flex-direction: column;
+}
 .auth__container {
     display: flex;
     justify-content: center;
@@ -77,16 +81,8 @@
     overflow: hidden;
 }
 
-.course {
-    display: flex;
-    flex-direction: column;
-    border: 1px solid gray;
-    margin: 5px;
-    padding: 10px;
-    font-size: 14px;
-}
 
-.map-menu {
+.map-menu, .center-menu {
     position: absolute;
     top: 15px;
     right: 50px;
@@ -94,32 +90,22 @@
     border-radius: 5px;
     padding: 10px;
     z-index: 10000;
+    color: #6b7070;
 }
+
 .center-menu {
-    position: absolute;
-    top: 103px;
-    right: 50px;
-    background-color: rgba(255, 255, 255, 0.8);
-    border-radius: 5px;
-    padding: 10px;
-    z-index: 10000;
+    top: 253px;
+    display: flex;
+    padding: 10px 30px;
+    flex-direction: column;
+    justify-content: center;
 }
-.course__name {
-    padding: 5px 10px;
-    border-bottom: 1px solid gray;
-    text-transform: uppercase;
+.center-menu div {
+    display: flex;
+    justify-content: center;
     
 }
 
-.course__description {
-    padding: 5px 10px;
-    display: flex;
-    justify-content: space-between;
-}
-.course__delete-btn {
-    background-color: red;
-    color: white;
-}
 .modal__content {
     background-color: white;
     padding: 20px;
