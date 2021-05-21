@@ -15,7 +15,7 @@ export const addNewPointHandler = async (wsServer, client, point, res) => {
     res.send('done')
 }
 
-export const getPointsHandler = async (wsServer, client) => {
+export const getPointsHandler = async (client, res) => {
     let data;
     try {
         data = await client.query('SELECT * FROM routes');
@@ -24,7 +24,6 @@ export const getPointsHandler = async (wsServer, client) => {
         res.send('error db');
         return;
     }
-    console.log(Object.values(data.rows[0]));
-    wsServer.clients.forEach(client => client.send('update data'));
+    res.send(data.rows);
 }
 

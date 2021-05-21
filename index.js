@@ -61,7 +61,6 @@ app.post("/api/addpoint", (req, res) => {
 });
 
 app.get("/api/get", function(req, res) {
-    getPointsHandler(webSocketServer, client);
-    res.send('done');
+    getPointsHandler(client, res);
 });
 

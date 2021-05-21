@@ -20,11 +20,7 @@ export const initWebSocketServer = (app) => {
 
     webSocketServer.on('connection', ws => {
         console.log('ws connection ready');
-        sendMessages(ws);
-        ws.on('message', m => {
-            console.log(m);
-            webSocketServer.clients.forEach(client => client.send('we got it' + m));
-        });
+        //sendMessages(ws);
         ws.on("error", e => ws.send(e));
         ws.send('Hi there, I am a WebSocket server');
     });

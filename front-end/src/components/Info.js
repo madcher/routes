@@ -4,8 +4,8 @@ const Info = ({point}) => {
 
     return (
         <div>
-            <div>{`Номер: ${point.carid}`}</div>
-            <div>{`Время: ${new Date(point.datetime).toLocaleString()}`}</div>
+            <div>{`Vehicle Id: ${point.carid}`}</div>
+            <div>{`Date and time: ${new Date(point.datetime).toLocaleString()}`}</div>
         </div>
     )
 }

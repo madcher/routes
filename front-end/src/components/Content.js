@@ -1,19 +1,21 @@
-import React, {useEffect, useState, useRef } from 'react';
+import React, {useEffect, useState } from 'react';
 import MapComponent from './MapComponent';
 import Aim from '../icons/aim'
 import { addPoint, initWebSocket, getPoints } from '../services/service';
 import { initialMapState, CENTER, INITZOOM } from '../consts';
-import AddPointComponent from './AddpointComponent'
+import AddPointComponent from './AddpointComponent';
+import TableRoutes from './TableRoutes';
 
 
 // содержания страницы
-const Content = ({token}) => {
+const Content = ({token, route}) => {
     const [state, setState] = useState(initialMapState);
     const [ map, setMap ] = useState(null);
     const [points, setPoints] = useState([]);
-    
+    const [routes, setRoutes] = useState({});
+
     useEffect(() => {
-        getPoints(setPoints, token)
+        getPoints(setPoints, setRoutes, token)
     }, []);
 
     useEffect(() => {
@@ -26,7 +28,7 @@ const Content = ({token}) => {
     }, [points]);
 
     const socketMessageHandler = () => {
-        getPoints(setPoints, token);
+        getPoints(setPoints, setRoutes, token);
     }
     
     // worker
@@ -44,16 +46,23 @@ const Content = ({token}) => {
     
     return (
         <div className="content">
-            <AddPointComponent callback={addPointHandler} />
-            <div className="center-menu">
-                <div><Aim/></div>
-                <div>
-                    <button type="button" className="auth__input auth_button" onClick={goToCenter}>go</button>
-                </div>
-            </div>
-            <div id="mapid">
-                <MapComponent state={state} setMap={setMap} points={points}/>
-            </div>
+            {
+                route === 'map' && (
+                    <>
+                        <AddPointComponent callback={addPointHandler} />
+                        <div className="center-menu">
+                            <div><Aim/></div>
+                            <div>
+                                <button type="button" className="auth__input auth_button" onClick={goToCenter}>go</button>
+                            </div>
+                        </div>
+                        <div id="mapid">
+                            <MapComponent state={state} setMap={setMap} points={points} routes={routes}/>
+                        </div>
+                    </>
+                )
+            }
+            { route !== 'map' && <TableRoutes points={points} />}
         </div>
     );
 }

@@ -1,6 +1,6 @@
 import workerFunction from '../serviceWorker';
 
-// функция авторизации
+// authorisation function
 export const loginFunc = (e, setToken, setError) => {
     const data = new FormData(e.target);
     const login = data.get('login');
@@ -27,26 +27,44 @@ export const loginFunc = (e, setToken, setError) => {
     });
 };
 
-// получение маршрутов
-export const getPoints = (setPoints, token) => {
+// get all routes
+const getRoutes = (data) => {
+    const routes = {};
+    data.map(el => {
+        // coords for points
+        const coords = [el.lat, el.lng];
+        if (!routes[el.carid]) {
+            routes[el.carid] = [coords];
+        } else {
+            routes[el.carid].push(coords);
+        }
+    });
+    return routes;
+}
+// get all points
+export const getPoints = (setPoints, setRoutes, token) => {
     fetch('/api/get', {
         method: 'GET',
         headers: {'token': token}
     }).then(response => response.json()).then(data => {
+        // разбиваем на отдельные маршруты по маг=шинам
+        const routes = getRoutes(data);
         setPoints(data);
+        setRoutes(routes);
     }).catch(err => console.log(err));
 }
-// добавление точки
+//send point to server
 export const addPoint = (query, setPoints, token) => {
     fetch('/api/addpoint', {
         method: 'POST',
         headers: {'token': token, 'Content-Type': 'application/json;charset=utf-8'},
         body: JSON.stringify(query)
     }).then(res => {
-        getPoints(setPoints, token);
+        console.log('done');
     }).catch(err => console.log(err));
 }
 
+// websocket initialisation with webworker
 export const initWebSocket = (callback) => {
     var dataObj = '(' + workerFunction + ')();'; // here is the trick to convert the above fucntion to string
     var blob = new Blob([dataObj.replace('"use strict";', '')]); // firefox adds "use strict"; to any function which might block worker execution so knock it off
