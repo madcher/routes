@@ -15,6 +15,8 @@ const pgHost = process.env.POSTGRES_HOST;
 const pgPort = process.env.POSTGRES_PORT;
 const pgDb = process.env.POSTGRES_DB;
 const token = process.env.TOKEN;
+const envLogin = process.env.LOGIN;
+const envPass = process.env.PASSWORD;
 // --------------------------------------------------------------
 // static content
 const __filename = fileURLToPath(import.meta.url);
@@ -24,7 +26,10 @@ const __dirname = dirname(__filename)
 // 'postgressql://postgres:root@localhost:5432/otus-courses';
 const Client = PG.Client;
 const connectionString = `postgressql://${pgUser}:${pgPass}@${pgHost}:${pgPort}/${pgDb}`;
-const client = new Client({ connectionString: connectionString });
+const client = new Client({
+    connectionString: process.env.DATABASE_URL || connectionString,
+    ssl: process.env.DATABASE_URL ? true : false
+});
 client.connect();
 
 // rest api && websocket server
@@ -35,7 +40,7 @@ const webSocketServer = initWebSocketServer(app);
 app.post("/api/authorization", (req, res) => {
     const {login, password} = req.body;
     console.log(login, password);
-    if (login !== '1' && password !== '1') {
+    if (login !== envLogin || password !== envPass) {
         res.status(401);
         res.send('Current password does not match');
     } else {
